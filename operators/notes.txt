@@ -1,0 +1,4 @@
+!@within - has problems becouse it dipend on tx: (there is like 5 rules like that)
+@streq , !@streq- have the same problem there is 5 also
+@detectXSS,@detectSQLi' the same i dont think that this is rules.
+@ge,@lt' works also with the tx:
