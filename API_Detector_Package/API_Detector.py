@@ -1,8 +1,8 @@
 import os
 import re
-from SYS_Rule import SYS_Rule
-from SYS_Operators import SYS_Operators
-from SYS_Request import SYS_Request
+from .SYS_Rule import SYS_Rule
+from .SYS_Operators import SYS_Operators
+from .SYS_Request import SYS_Request
 """
 this is the class you will use for using the system
 this is the main class that concentrate all the other classes and will connect between them for making the prediction
