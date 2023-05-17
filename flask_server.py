@@ -11,7 +11,7 @@ app.url_map.strict_slashes = False
 app.normalization = False
 app.config['TRAP_BAD_REQUEST_ERRORS'] = False
 
-api_detector = API_Detector("rules")
+api_detector = API_Detector.API_Detector()
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>', methods=['GET', 'POST'])

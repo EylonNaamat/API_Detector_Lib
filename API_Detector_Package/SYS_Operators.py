@@ -22,8 +22,8 @@ class SYS_Operators:
         self.operators = {}
         self.operators['@rx'] = RX_Operator()
         self.operators['!@rx'] = NOTRX_Operator()
-        self.operators['@pmFromFile'] = pmFromFile_Operator("rules")
-        self.operators['!@pmFromFile'] = NOTpmFromFile_Operator("rules")
+        self.operators['@pmFromFile'] = pmFromFile_Operator()
+        self.operators['!@pmFromFile'] = NOTpmFromFile_Operator()
         self.operators['!@contains'] = NOTcontains_Operator()
         self.operators['@contains'] = contains_Operator()
         self.operators['@ipMatch'] = ipMatch_Operator()

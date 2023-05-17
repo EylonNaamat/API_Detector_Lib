@@ -1,5 +1,6 @@
 import os
 import re
+import requests
 from .SYS_Rule import SYS_Rule
 from .SYS_Operators import SYS_Operators
 from .SYS_Request import SYS_Request
@@ -11,8 +12,8 @@ and by using the function detect_malicious_request that get a request it will ch
 malware or benign
 """
 class API_Detector:
-    def __init__(self, rules_folder):
-        self.rules_folder = rules_folder
+    def __init__(self):
+        self.repo_url = "https://api.github.com/repos/michaelMatve/API_Final_Project/contents/rules"
         self.rules = []
         self.rule_executor = SYS_Operators()
         self.good_operators = ["@rx", "@pmFromFile", "!@rx", "!@pmFromFile","@contains", "!@contains","@ipMatch", "@pm","!@pm", "@eq","!@eq", "@endsWith"]
@@ -136,102 +137,102 @@ class API_Detector:
         # list of all the ids in the files use to check there are no 2 rules with same id
         seen_ids = set()
 
-        # list of all the .conf file rules_folder
-        rule_files = [f for f in os.listdir(self.rules_folder) if f.endswith('.conf')]
+        response = requests.get(self.repo_url)
+        if response.ok:
+            # run on all the files
+            for rulefile in response.json():
+                if rulefile.get("type") == "file" and rulefile.get("name").endswith(".conf"):
+                    # read the content
+                    content = requests.get(rulefile.get("download_url")).text
+                    #use for debugging
+                    lineno = 0
 
-        # run on all the files
-        for rulefile in rule_files:
-            # read the content
-            rule_file_path = os.path.join(self.rules_folder, rulefile)
-            with open(rule_file_path, 'r') as f:
-                content = f.read()
-            #use for debugging
-            lineno = 0
+                    # this variable help as to find rules that depend on other rules (has child rule)
+                    this_chained = next_chained = False
 
-            # this variable help as to find rules that depend on other rules (has child rule)
-            this_chained = next_chained = False
-
-            # use to save the previous line for conacting line together
-            prevline = None
-
-            # for each line in the rule file
-            for line in content.splitlines():
-                lineno += 1
-                # handle continuation lines
-                line = (prevline + line) if prevline else line
-
-                # remove comments from line
-                line = re.sub(r'(^([^\'"]|\'[^\']+\'|"[^"]+\'|"[^"]+")#).*', r'\1', line)
-
-                # replace the "\" with space
-                if line.endswith('\\'):
-                    # change the last one to space and pass to the next line
-                    prevline = line[:-1] + " "
-                    continue
-                else:
+                    # use to save the previous line for conacting line together
                     prevline = None
 
-                # skip if it's an empty line (this also skip comment-only lines)
-                if re.match(r'(?:^\s+$|^#)', line):
-                    continue
+                    # for each line in the rule file
+                    for line in content.splitlines():
+                        lineno += 1
+                        # handle continuation lines
+                        line = (prevline + line) if prevline else line
 
-                # remember if this line is chained to the previous or not
-                this_chained = next_chained
-                next_chained = False
+                        # remove comments from line
+                        line = re.sub(r'(^([^\'"]|\'[^\']+\'|"[^"]+\'|"[^"]+")#).*', r'\1', line)
 
-                # split the directive in its components, considering quoted strings
-                directive = re.findall(
-                    r'([^\'"\s][^\s]*[^\'"\s]|\'(?:[^\']|\\\')*[^\']\'|"(?:[^"]|\\")*[^\\]")(?:\s+|$)', line)
-                directive = [piece[1:-1] if (piece[0] == '"' or piece[0] == "'") else piece for piece in directive]
+                        # replace the "\" with space
+                        if line.endswith('\\'):
+                            # change the last one to space and pass to the next line
+                            prevline = line[:-1] + " "
+                            continue
+                        else:
+                            prevline = None
 
-                # skip if it's not a SecRule or SecAction
-                if len(directive) and directive[0] == "SecRule":
-                    if directive[1] == 'TX:DETECTION_PARANOIA_LEVEL':
-                        continue
-                else:
-                    continue
+                        # skip if it's an empty line (this also skip comment-only lines)
+                        if re.match(r'(?:^\s+$|^#)', line):
+                            continue
 
-                # add empty values for the list to get length > 3
-                while len(directive)<4:
-                    directive.append("")
+                        # remember if this line is chained to the previous or not
+                        this_chained = next_chained
+                        next_chained = False
+
+                        # split the directive in its components, considering quoted strings
+                        directive = re.findall(
+                            r'([^\'"\s][^\s]*[^\'"\s]|\'(?:[^\']|\\\')*[^\']\'|"(?:[^"]|\\")*[^\\]")(?:\s+|$)', line)
+                        directive = [piece[1:-1] if (piece[0] == '"' or piece[0] == "'") else piece for piece in directive]
+
+                        # skip if it's not a SecRule or SecAction
+                        if len(directive) and directive[0] == "SecRule":
+                            if directive[1] == 'TX:DETECTION_PARANOIA_LEVEL':
+                                continue
+                        else:
+                            continue
+
+                        # add empty values for the list to get length > 3
+                        while len(directive)<4:
+                            directive.append("")
 
 
-                # extract the information from the directive for the Rule class
-                place_to_lookfor = self.extract_place_to_lookfor(directive[1])
-                operator , args = self.extract_operator_and_args(directive[2])
-                extra_info = self.get_extra_information(directive[3])
+                        # extract the information from the directive for the Rule class
+                        place_to_lookfor = self.extract_place_to_lookfor(directive[1])
+                        operator , args = self.extract_operator_and_args(directive[2])
+                        extra_info = self.get_extra_information(directive[3])
 
-                # remember that the next rule is child rule
-                next_chained = extra_info['chain']
+                        # remember that the next rule is child rule
+                        next_chained = extra_info['chain']
 
-                # make new Rule
-                curr_rule = SYS_Rule(place_to_lookfor,operator,args,extra_info)
+                        # make new Rule
+                        curr_rule = SYS_Rule(place_to_lookfor,operator,args,extra_info)
 
-                # if the rule is a child rule we add it as a child and if not we add it to the rule list
-                if this_chained:
-                    self.rules[-1].add_child_rule(curr_rule)
-                else:
-                    if curr_rule.id in seen_ids:
-                        print(f"{rulefile}:{lineno} rule with duplicate id {curr_rule.id}")
-                    else:
-                        seen_ids.add(curr_rule.id)
-                        self.rules.append(curr_rule)
+                        # if the rule is a child rule we add it as a child and if not we add it to the rule list
+                        if this_chained:
+                            self.rules[-1].add_child_rule(curr_rule)
+                        else:
+                            if curr_rule.id in seen_ids:
+                                print(f"{rulefile}:{lineno} rule with duplicate id {curr_rule.id}")
+                            else:
+                                seen_ids.add(curr_rule.id)
+                                self.rules.append(curr_rule)
 
-        # take off all the rule which not appears in the good_operators list
-        new_rule_list =[]
-        for index, value in enumerate(self.rules):
-            check_rule = value
-            check_flag = True
-            while check_rule is not None:
-                if check_rule.operator not in self.good_operators:
-                    check_flag = False
-                check_rule = check_rule.child_rule
+            # take off all the rule which not appears in the good_operators list
+            new_rule_list =[]
+            for index, value in enumerate(self.rules):
+                check_rule = value
+                check_flag = True
+                while check_rule is not None:
+                    if check_rule.operator not in self.good_operators:
+                        check_flag = False
+                    check_rule = check_rule.child_rule
 
-            if check_flag:
-                new_rule_list.append(value)
+                if check_flag:
+                    new_rule_list.append(value)
 
-        # update the new list in to the class list
-        self.rules = new_rule_list
+            # update the new list in to the class list
+            self.rules = new_rule_list
+        else:
+            self.rules = {}
 
 
     async def detect_malicious_request(self, request, request_type):

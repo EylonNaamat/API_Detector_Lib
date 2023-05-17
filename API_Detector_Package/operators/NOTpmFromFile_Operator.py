@@ -1,4 +1,5 @@
 import os
+import requests
 
 """
 this class represent a operator (!@pmFromFile) and this class contain the function that should run when this 
@@ -11,21 +12,22 @@ ask to look for)
 
 """
 class NOTpmFromFile_Operator:
-    def __init__(self, data_files_folder):
-        self.data_files_folder = data_files_folder
+    def __init__(self):
+        self.repo_url = "https://api.github.com/repos/michaelMatve/API_Final_Project/contents/rules"
         self.data_files = {}
         self.load_data_files()
     """
     load all the .data file from the rule folder in to a dict when the file name is the key and the value is a list 
     of all the lines in the file
     """
+
     def load_data_files(self):
-        rule_files = [f for f in os.listdir(self.data_files_folder) if f.endswith('.data')]
-        for rulefile in rule_files:
-            # read the content
-            rule_file_path = os.path.join(self.data_files_folder, rulefile)
-            with open(rule_file_path, 'r') as f:
-                self.data_files[rulefile] = [line.strip() for line in f.readlines() if line.strip() != '' and line.strip()[0] != '#']
+        response = requests.get(self.repo_url)
+        if response.ok:
+            for file_data in response.json():
+                if file_data.get("type") == "file" and file_data.get("name").endswith(".data"):
+                    file_content = requests.get(file_data.get("download_url")).text
+                    self.data_files[file_data.get("name")] = [line.strip() for line in file_content.splitlines() if line.strip() != '' and line.strip()[0] != '#']
 
     """
     helper function to validate
