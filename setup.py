@@ -1,6 +1,4 @@
 from setuptools import setup, find_packages
-import glob
-import os
 
 setup(
     name='API_Detector_Package',
@@ -9,6 +7,7 @@ setup(
     author='Eylon Naamat & Michael Matveev',
     packages=find_packages(),
     install_requires=[
-            'requests'
-        ]
+        'requests',
+        'colorlog'
+    ]
 )
