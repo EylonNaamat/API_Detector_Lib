@@ -1,0 +1,12 @@
+README.md
+setup.py
+API_Detector_Package/API_Detector.py
+API_Detector_Package/SYS_Operators.py
+API_Detector_Package/SYS_Request.py
+API_Detector_Package/SYS_Rule.py
+API_Detector_Package/__init__.py
+API_Detector_Package.egg-info/PKG-INFO
+API_Detector_Package.egg-info/SOURCES.txt
+API_Detector_Package.egg-info/dependency_links.txt
+API_Detector_Package.egg-info/requires.txt
+API_Detector_Package.egg-info/top_level.txt
