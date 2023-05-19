@@ -1,9 +1,11 @@
-import os
 import re
 import requests
-from .SYS_Rule import SYS_Rule
-from .SYS_Operators import SYS_Operators
-from .SYS_Request import SYS_Request
+from SYS_Rule import SYS_Rule
+from SYS_Operators import SYS_Operators
+from SYS_Request import SYS_Request
+from datetime import datetime
+import logging
+import colorlog
 """
 this is the class you will use for using the system
 this is the main class that concentrate all the other classes and will connect between them for making the prediction
@@ -13,7 +15,8 @@ malware or benign
 """
 class API_Detector:
     def __init__(self):
-        self.repo_url = "https://api.github.com/repos/michaelMatve/API_Final_Project/contents/rules"
+        self.logger = self.setup_logger()
+        self.repo_url = "https://api.github.com/repos/EylonNaamat/API_Rules/contents/rules"
         self.rules = []
         self.rule_executor = SYS_Operators()
         self.good_operators = ["@rx", "@pmFromFile", "!@rx", "!@pmFromFile","@contains", "!@contains","@ipMatch", "@pm","!@pm", "@eq","!@eq", "@endsWith"]
@@ -234,13 +237,81 @@ class API_Detector:
         else:
             self.rules = {}
 
+    # Create a log entry
+    def create_log_entry(self, detected_field, detected_content, request, rule):
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_entry = {
+            "time": current_time,
+            "detected_field": detected_field,
+            "detected_contact": detected_content,
+            "request": request.__dict__,
+            "rule": rule.__dict__
+        }
+        return log_entry
+
+    def write_log(self, detected_field, detected_content, request, rule):
+        # Create a logger instance
+        logger = logging.getLogger('API_Detector_Log')
+
+        # Create a log format with color settings
+        log_format = '\033[1;31m%(message)s\033[0m'
+
+        # Create a formatter and set the log format
+        formatter = logging.Formatter(log_format)
+
+        # Create a file handler and set the formatter
+        file_handler = logging.FileHandler('logs.txt')
+        file_handler.setFormatter(formatter)
+
+        # Add the file handler to the logger
+        logger.addHandler(file_handler)
+
+        # Log the information with red color for specific lines
+        logger.info(f'Detected Field: {detected_field}')
+        logger.info(f'Detected Content: {detected_content}')
+        logger.info(f'Request: {request}')
+        logger.info(f'Rule: {rule}')
+
+    def setup_logger(self):
+        # Create a logger instance
+        logger = logging.getLogger('API_Detector_Log')
+        logger.setLevel(logging.INFO)  # Set log level to INFO
+
+        # Create a formatter with color settings
+        log_format = '%(log_color)s[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s'
+        log_colors = {
+            'DEBUG': 'white',
+            'INFO': 'green',
+            'WARNING': 'yellow',
+            'ERROR': 'red',
+            'CRITICAL': 'bold_red',
+        }
+        formatter = colorlog.ColoredFormatter(log_format, log_colors=log_colors)
+
+        # Create a file handler and set the formatter
+        file_handler = logging.FileHandler('logs.txt')
+        file_handler.setFormatter(formatter)
+
+        # Add the file handler to the logger
+        logger.addHandler(file_handler)
+
+        return logger
+
 
     async def detect_malicious_request(self, request, request_type):
         req = SYS_Request()
         await req.fill(request, request_type)
         for rule in self.rules:
-            if self.rule_executor.exec(rule, req):
+            answer = self.rule_executor.exec(rule, req)
+            if answer:
+                self.logger.error(f'Detected Field: {answer[0]}')
+                self.logger.error(f'Detected Content: {answer[1]}')
+                self.logger.error(f'Request: {request}')
+                self.logger.error(f'Rule: {rule}')
+                self.logger.error('\n')
                 return True
+        self.logger.info(f'Benign Request: {req}')
+        self.logger.info('\n')
         return False
 
 

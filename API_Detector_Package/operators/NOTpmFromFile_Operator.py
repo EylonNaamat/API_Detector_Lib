@@ -13,7 +13,7 @@ ask to look for)
 """
 class NOTpmFromFile_Operator:
     def __init__(self):
-        self.repo_url = "https://api.github.com/repos/michaelMatve/API_Final_Project/contents/rules"
+        self.repo_url = "https://api.github.com/repos/EylonNaamat/API_Rules/contents/rules"
         self.data_files = {}
         self.load_data_files()
     """

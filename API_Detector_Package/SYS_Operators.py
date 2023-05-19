@@ -1,15 +1,15 @@
-from .operators.RX_Operator import RX_Operator
-from .operators.pmFromFile_Operator import pmFromFile_Operator
-from .operators.NOTpmFromFile_Operator import NOTpmFromFile_Operator
-from .operators.NOTRX_Operator import NOTRX_Operator
-from .operators.contains_Operator import contains_Operator
-from .operators.NOTcontains_Operator import NOTcontains_Operator
-from .operators.ipMatch_Operator import ipMatch_Operator
-from .operators.PM_Operator import PM_Operator
-from .operators.NOTPM_Operator import NOTPM_Operator
-from .operators.EQ_Operator import EQ_Operator
-from .operators.NOTEQ_Operator import NOTEQ_Operator
-from .operators.endsWith_Operator import endsWith_Operator
+from operators.RX_Operator import RX_Operator
+from operators.pmFromFile_Operator import pmFromFile_Operator
+from operators.NOTpmFromFile_Operator import NOTpmFromFile_Operator
+from operators.NOTRX_Operator import NOTRX_Operator
+from operators.contains_Operator import contains_Operator
+from operators.NOTcontains_Operator import NOTcontains_Operator
+from operators.ipMatch_Operator import ipMatch_Operator
+from operators.PM_Operator import PM_Operator
+from operators.NOTPM_Operator import NOTPM_Operator
+from operators.EQ_Operator import EQ_Operator
+from operators.NOTEQ_Operator import NOTEQ_Operator
+from operators.endsWith_Operator import endsWith_Operator
 
 """
 this class is the class that represent the functional part of the system
@@ -63,6 +63,4 @@ class SYS_Operators:
                 return False
             rule = rule.child_rule
         check_ans = self.operators[rule.operator].validate(request, rule.place_to_lookfor , rule.args)
-        if check_ans:
-            print(rule)
         return check_ans

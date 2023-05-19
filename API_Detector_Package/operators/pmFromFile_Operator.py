@@ -13,7 +13,7 @@ ask to look for)
 """
 class pmFromFile_Operator:
     def __init__(self):
-        self.repo_url = "https://api.github.com/repos/michaelMatve/API_Final_Project/contents/rules"
+        self.repo_url = "https://api.github.com/repos/EylonNaamat/API_Rules/contents/rules"
         self.data_files = {}
         self.load_data_files()
     """
@@ -40,7 +40,7 @@ class pmFromFile_Operator:
                 for pattern in self.data_files[expression]:
                     match = pattern in sys_request.get(out_place).get(in_place)
                     if match:
-                        return True
+                        return (f"{out_place}:{in_place}",sys_request.get(out_place).get(in_place))
         return False
     """
     helper function to validate
@@ -52,7 +52,7 @@ class pmFromFile_Operator:
             for pattern in self.data_files[expression]:
                 match = pattern in val
                 if match:
-                    return True
+                    return (place,val)
         return False
     """
     helper function to validate
@@ -64,7 +64,7 @@ class pmFromFile_Operator:
             for pattern in self.data_files[expression]:
                 match = pattern in key
                 if match:
-                    return True
+                    return (place,key)
         return False
 
     """
@@ -76,21 +76,21 @@ class pmFromFile_Operator:
             if len(place_split) > 1:
                 detected = self.check_inner_place(sys_request, place_split[0], place_split[1], expression)
                 if detected:
-                    return True
+                    return detected
             else:
                 if sys_request.get(place) is not None:
                     if isinstance(sys_request.get(place), dict):
                         detected = self.check_dict_place(sys_request, place, expression)
                         if detected:
-                            return True
+                            return detected
                     else:
                         if isinstance(sys_request.get(place), list):
                             detected = self.check_list_place(sys_request, place, expression)
                             if detected:
-                                return True
+                                return detected
                         else:
                             for pattern in self.data_files[expression]:
                                 match = pattern in sys_request.get(place)
                                 if match:
-                                    return True
+                                    return (place,sys_request.get(place))
         return False

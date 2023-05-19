@@ -20,8 +20,7 @@ class RX_Operator:
             if sys_request.get(out_place).get(in_place) is not None:
                 match = re.search(expression, sys_request.get(out_place).get(in_place))
                 if match:
-                    print(sys_request.get(out_place).get(in_place))
-                    return True
+                    return (f"{out_place}:{in_place}",sys_request.get(out_place).get(in_place))
         return False
 
     """
@@ -33,7 +32,7 @@ class RX_Operator:
         for val in sys_request.get(place).values():
             match = re.search(expression, val)
             if match:
-                return True
+                return (place,val)
         return False
 
     """
@@ -45,7 +44,7 @@ class RX_Operator:
         for key in sys_request.get(place):
             match = re.search(expression, key)
             if match:
-                return True
+                return (place,key)
         return False
 
     """
@@ -57,24 +56,18 @@ class RX_Operator:
             if len(place_split) > 1:
                 detected = self.check_inner_place(sys_request, place_split[0], place_split[1], expression)
                 if detected:
-                    print(sys_request.get(place))
-                    print(place)
-                    return True
+                    return detected
             else:
                 if sys_request.get(place) is not None:
                     if isinstance(sys_request.get(place), dict):
                         detected = self.check_dict_place(sys_request, place, expression)
                         if detected:
-                            # print(sys_request.get(place))
-                            # print(place)
-                            return True
+                            return detected
                     else:
                         if isinstance(sys_request.get(place), list):
                             detected = self.check_list_place(sys_request, place, expression)
                             if detected:
-                                # print(sys_request.get(place))
-                                # print(place)
-                                return True
+                                return detected
                         else:
                             print("----------------------------------------------------")
                             print(place)
@@ -83,7 +76,5 @@ class RX_Operator:
                             print("----------------------------------------------------")
                             match = re.search(expression, sys_request.get(place))
                             if match:
-                                # print(sys_request.get(place))
-                                # print(place)
-                                return True
+                                return (place,sys_request.get(place))
         return False

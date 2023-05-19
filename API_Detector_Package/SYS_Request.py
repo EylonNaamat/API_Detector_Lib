@@ -82,7 +82,7 @@ class SYS_Request:
             self.request_cookies_names = list(request.cookies.keys())
         self.request_uri_raw = request.full_path
 
-        print(self)
+        # print(self)
     async def fastapi_api_request(self, request,files):
         self.request_headers = {key.lower(): value for key, value in dict(request.headers).items()}
         if request.method and request.url.path and request.scope and request.scope.get('http_version'):

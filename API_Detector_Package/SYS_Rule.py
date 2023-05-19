@@ -22,7 +22,6 @@ class SYS_Rule:
             self.child_rule.add_child_rule(new_child_rule)
 
     def __repr__(self):
-        return f"id :{self.id}\n msg:{self.msg }\n tags:{self.tags}\n severity {self.severity}\n place_to_lookfor:{self.place_to_lookfor}\n operator:{self.operator}\nargs:{self.args}\nchild:{self.child_rule}\n"
-
+        return f"id :{self.id}\n msg:{self.msg }\n tags:{self.tags}\n severity {self.severity}\n place_to_lookfor:{self.place_to_lookfor}\n operator:{self.operator}\n args:{self.args}\n child:{self.child_rule}"
     def __str__(self):
-        return f"id :{self.id}\n msg:{self.msg }\n tags:{self.tags}\n severity {self.severity}\n place_to_lookfor:{self.place_to_lookfor}\n operator:{self.operator}\nargs:{self.args}\nchild:{self.child_rule}\n"
+        return f"id :{self.id}\n msg:{self.msg }\n tags:{self.tags}\n severity {self.severity}\n place_to_lookfor:{self.place_to_lookfor}\n operator:{self.operator}\n args:{self.args}\n child:{self.child_rule}"
