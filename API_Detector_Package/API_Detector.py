@@ -1,8 +1,8 @@
 import re
 import requests
-from SYS_Rule import SYS_Rule
-from SYS_Operators import SYS_Operators
-from SYS_Request import SYS_Request
+from .SYS_Rule import SYS_Rule
+from .SYS_Operators import SYS_Operators
+from .SYS_Request import SYS_Request
 from datetime import datetime
 import logging
 import colorlog
