@@ -137,8 +137,11 @@ class API_Detector:
         seen_ids = set()
 
         # list of all the .conf file rules_folder
+        print("----------------------------------------------------------------------")
+        print("1111111111111111111111111111111111111111111111111111111111111111111111")
         rule_files = [f for f in os.listdir(self.rules_folder) if f.endswith('.conf')]
-
+        print("1111111111111111111111111111111111111111111111111111111111111111111111")
+        print("----------------------------------------------------------------------")
         # run on all the files
         for rulefile in rule_files:
             # read the content
